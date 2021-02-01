@@ -51,7 +51,8 @@ public final class InGrowClient {
     public func logEvents(events: Dictionary<String, Any>) {
         
         if(events.isEmpty){
-            fatalError("Error - events must not be null.")
+            handleFailure(message: "Error - events must not be null.")
+            return
         }
         var main = Dictionary<String, Any>()
         var inGrowObject = Dictionary<String, Any>()
@@ -96,6 +97,14 @@ public final class InGrowClient {
     private func sendRequest(request: NSString){
 
         RestClient.sendEvents(json: request, apiKey: self.inGrowProject.apiKey)
+    }
+    
+    private func handleFailure(message:String){
+        if(isDebugMode){
+            fatalError(message)
+        }else{
+            InGrowLogging.log(msg: message)
+        }
     }
 }
 
