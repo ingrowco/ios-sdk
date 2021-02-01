@@ -29,6 +29,11 @@ public final class InGrowClient {
         guard let config = InGrowClient.config else {
             fatalError("Error - you must call setup before accessing InGrowClient.shared")
         }
+        if(config.inGrowProject.isLoggingEnable){
+            InGrowLogging.enableLogging()
+        }else{
+            InGrowLogging.disableLogging()
+        }
         inGrowProject = config.inGrowProject
         isDebugMode = false
     }
@@ -52,6 +57,11 @@ public final class InGrowClient {
         
         if(events.isEmpty){
             handleFailure(message: "Error - events must not be null.")
+            return
+        }
+        if(!isNetworkConnected()){
+            InGrowLogging.log(msg: "Error - Couldn't send events because of no network connection.")
+            handleFailure(message: "Error - Network's not connected.")
             return
         }
         var main = Dictionary<String, Any>()
@@ -87,16 +97,20 @@ public final class InGrowClient {
             if(!requestString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty){
                 sendRequest(request: requestString)
             }else{
-                fatalError("Error - JSON request must not be null!")
+                InGrowLogging.log(msg: "Error - JSON request must not be null!")
             }
         } catch {
-            print("Error - Not a valid JSON")
+            InGrowLogging.log(msg: "Error - Not a valid JSON")
         }
     }
     
     private func sendRequest(request: NSString){
 
         RestClient.sendEvents(json: request, apiKey: self.inGrowProject.apiKey)
+    }
+    
+    private func isNetworkConnected() -> Bool {
+        return Reachability.isConnectedToNetwork()
     }
     
     private func handleFailure(message:String){
