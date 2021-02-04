@@ -1,0 +1,6 @@
+framework module Pods_InGrowiOS {
+  umbrella header "Pods-InGrowiOS-umbrella.h"
+
+  export *
+  module * { export * }
+}
